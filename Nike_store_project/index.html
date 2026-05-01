@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cửa hàng Giày - Đồ án học tập</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Header -->
+    <div id="user-status">
+            <!-- Nút này sẽ đổi thành tên người dùng nếu đã đăng nhập -->
+            <span style="cursor:pointer;" onclick="document.getElementById('auth-modal').style.display='block'">Tham Gia | Đăng Nhập</span>
+        </div>
+    
+    <nav class="main-nav">
+        <div class="logo">NIKE</div>
+        <ul class="menu">
+            <li><a onclick="showPage('home')">Trang Chủ</a></li>
+            <li><a onclick="renderProducts('all')">Tất Cả Sản Phẩm</a></li>
+            <li><a onclick="renderProducts('nam')">Nam</a></li>
+            <li><a onclick="renderProducts('nu')">Nữ</a></li>
+        </ul>
+        <div class="actions">
+            <!-- Thêm id cho nút Giỏ hàng để dễ gọi sự kiện -->
+            🔍 | 🤍 | <span style="cursor:pointer;" onclick="showCartModal()">🛒 <span id="cart-count" style="color:red; font-weight:bold;">(0)</span></span>
+        </div>
+    </nav>
+
+    <!-- Trang Chủ -->
+    <div id="home-page">
+        <div class="hero-image"></div>
+    </div>
+
+    <!-- Trang Lưới Sản Phẩm -->
+    <div id="product-page" style="display: none;">
+        <div class="page-header">
+            <h1 class="page-title" id="page-title-text">Sản phẩm</h1>
+        </div>
+        <div class="product-container">
+            <div class="sidebar">
+                <div class="filter-item">Giới tính <span>⌄</span></div>
+                <div class="filter-item">Theo Giá <span>⌄</span></div>
+                <div class="filter-item">Kích Cỡ <span>⌄</span></div>
+            </div>
+            <!-- Lưới hiển thị sản phẩm được tạo bằng JS -->
+            <div class="product-grid" id="product-list"></div>
+        </div>
+    </div>
+
+    <!-- Trang Chi Tiết Sản Phẩm -->
+    <div id="detail-page" style="display: none;">
+        <button class="back-btn" onclick="showPage('products')">← Quay lại danh sách</button>
+        <div class="detail-container">
+            <div class="detail-left">
+                <img id="detail-img" src="" alt="Giày" class="detail-main-img">
+            </div>
+            <div class="detail-right">
+                <h1 id="detail-name" class="detail-title">Tên Giày</h1>
+                <p id="detail-category" class="detail-category">Danh mục</p>
+                <p id="detail-price" class="detail-price">Giá</p>
+                
+                <div class="size-section">
+                    <h3>Chọn Size / Kích Cỡ</h3>
+                    <div class="size-grid" id="size-grid">
+                        <!-- Nút chọn size render bằng JS -->
+                    </div>
+                </div>
+
+                <button class="add-to-cart-btn" onclick="addToCart()">Thêm vào giỏ hàng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- CÁC HỘP THOẠI (MODAL) CHO AUTH & UPDATE -->
+    <!-- ========================================== -->
+
+    <!-- Modal Đăng nhập / Đăng ký -->
+    <div id="auth-modal" style="display:none; position:fixed; top:20%; left:50%; transform:translate(-50%, 0); background:#fff; padding:30px; border:1px solid #ccc; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index:100; width: 350px;">
+        <h2 id="auth-title" style="margin-bottom: 20px;">Đăng Nhập</h2>
+        <input type="email" id="auth-email" placeholder="Email" style="width:100%; padding:10px; margin-bottom:15px; border: 1px solid #ccc;">
+        <input type="password" id="auth-password" placeholder="Mật khẩu" style="width:100%; padding:10px; margin-bottom:15px; border: 1px solid #ccc;">
+        
+        <button onclick="submitAuth()" style="width:100%; padding:12px; background:#111; color:#fff; border:none; cursor:pointer; font-weight:bold; margin-bottom:15px;">Xác nhận</button>
+        
+        <p onclick="toggleAuthMode()" style="text-align:center; color:#707070; cursor:pointer; text-decoration:underline;">Chưa có tài khoản? Đăng ký ngay</p>
+        <button onclick="document.getElementById('auth-modal').style.display='none'" style="position:absolute; top:10px; right:15px; background:none; border:none; font-size:18px; cursor:pointer;">✕</button>
+    </div>
+
+    <!-- Modal Cập nhật thông tin trước khi thanh toán -->
+    <div id="update-modal" style="display:none; position:fixed; top:20%; left:50%; transform:translate(-50%, 0); background:#fff; padding:30px; border:1px solid #ccc; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index:100; width: 350px;">
+        <h2 style="margin-bottom: 10px;">Cập nhật thông tin</h2>
+        <p style="font-size: 14px; color: #707070; margin-bottom: 20px;">Vui lòng cập nhật thông tin trước khi thanh toán.</p>
+        
+        <input type="text" id="update-name" placeholder="Họ và tên" style="width:100%; padding:10px; margin-bottom:15px; border: 1px solid #ccc;">
+        <input type="text" id="update-phone" placeholder="Số điện thoại" style="width:100%; padding:10px; margin-bottom:15px; border: 1px solid #ccc;">
+        <input type="text" id="update-address" placeholder="Địa chỉ giao hàng" style="width:100%; padding:10px; margin-bottom:15px; border: 1px solid #ccc;">
+
+        <button onclick="submitUpdateProfile()" style="width:100%; padding:12px; background:#111; color:#fff; border:none; cursor:pointer; font-weight:bold;">Lưu thông tin</button>
+        <button onclick="document.getElementById('update-modal').style.display='none'" style="position:absolute; top:10px; right:15px; background:none; border:none; font-size:18px; cursor:pointer;">✕</button>
+    </div>
+    <!-- Modal Giỏ Hàng -->
+    <div id="cart-modal" style="display:none; position:fixed; top:10%; right:10%; background:#fff; padding:30px; border:1px solid #ccc; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index:100; width: 400px; max-height: 80vh; overflow-y: auto;">
+        <h2 style="margin-bottom: 20px;">Giỏ hàng của bạn</h2>
+        <div id="cart-items" style="margin-bottom: 20px;">
+            <!-- Sản phẩm trong giỏ sẽ hiện ở đây -->
+        </div>
+        <button onclick="processCheckout()" style="width:100%; padding:12px; background:#111; color:#fff; border:none; cursor:pointer; font-weight:bold;">Thanh Toán Ngay</button>
+        <button onclick="document.getElementById('cart-modal').style.display='none'" style="position:absolute; top:10px; right:15px; background:none; border:none; font-size:18px; cursor:pointer;">✕</button>
+    </div>
+
+    <!-- Trang Quản Trị Admin -->
+    <div id="admin-page" style="display: none; padding: 24px 36px;">
+        <h1 style="margin-bottom: 20px;">Bảng Điều Khiển Quản Trị (Admin)</h1>
+        
+        <h2 style="margin-top: 30px; margin-bottom: 10px;">Danh sách Tài khoản</h2>
+        <table border="1" width="100%" cellpadding="10" style="border-collapse: collapse; text-align: left;">
+            <thead>
+                <tr style="background-color: #f5f5f5;">
+                    <th>ID</th><th>Email</th><th>Vai trò (Role)</th><th>Họ Tên</th><th>SĐT</th>
+                </tr>
+            </thead>
+            <tbody id="admin-users-table"></tbody>
+        </table>
+
+        <h2 style="margin-top: 40px; margin-bottom: 10px;">Lịch sử Mua hàng</h2>
+        <table border="1" width="100%" cellpadding="10" style="border-collapse: collapse; text-align: left;">
+            <thead>
+                <tr style="background-color: #f5f5f5;">
+                    <th>Mã Đơn</th><th>Người Mua</th><th>Sản Phẩm</th><th>Giá</th><th>Thời gian</th>
+                </tr>
+            </thead>
+            <tbody id="admin-orders-table"></tbody>
+        </table>
+    </div>
+    
+    <!-- Nhúng Script -->
+    <script src="js/data.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

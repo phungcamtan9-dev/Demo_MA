@@ -129,3 +129,18 @@ app.get('/api/admin/orders', (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server Backend đang chạy tại: http://localhost:${PORT}`);
 });
+
+// Admin: Xóa tài khoản
+app.delete('/api/admin/users/:id', (req, res) => {
+    const userId = req.params.id;
+    // Không cho phép tự xóa tài khoản Admin mặc định (id = 1) để tránh lỗi hệ thống
+    if (userId == 1) {
+        return res.status(400).json({ error: "Không thể xóa Admin gốc!" });
+    }
+    
+    db.query('DELETE FROM users WHERE id = ?', [userId], (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "Đã xóa tài khoản thành công!" });
+    });
+});
+

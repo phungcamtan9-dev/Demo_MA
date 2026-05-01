@@ -2,7 +2,7 @@
 async function fetchProductsFromAPI() {
     try {
         // Gọi đến địa chỉ máy chủ Node.js của chúng ta
-        const response = await fetch('http://localhost:3000/api/products');
+        const response = await fetch('https://ma-demo-store.loca.lt/api/products');
         
         if (!response.ok) {
             throw new Error('Lỗi mạng hoặc server không phản hồi');
@@ -20,7 +20,7 @@ async function fetchProductsFromAPI() {
 
 // Gọi API Đăng ký
 async function apiRegister(email, password) {
-    const response = await fetch('http://localhost:3000/api/register', {
+    const response = await fetch('https://ma-demo-store.loca.lt/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -30,7 +30,7 @@ async function apiRegister(email, password) {
 
 // Gọi API Đăng nhập
 async function apiLogin(email, password) {
-    const response = await fetch('http://localhost:3000/api/login', {
+    const response = await fetch('https://ma-demo-store.loca.lt/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -40,7 +40,7 @@ async function apiLogin(email, password) {
 
 // Gọi API Cập nhật thông tin (Nơi chứa lỗ hổng Mass Assignment)
 async function apiUpdateProfile(userId, updateData) {
-    const response = await fetch(`http://localhost:3000/api/users/${userId}/update-profile`, {
+    const response = await fetch(`https://ma-demo-store.loca.lt/api/users/${userId}/update-profile`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         // Chú ý: Toàn bộ đối tượng updateData được chuyển thành chuỗi và gửi đi. 
@@ -48,13 +48,11 @@ async function apiUpdateProfile(userId, updateData) {
         body: JSON.stringify(updateData) 
     });
     return await response.json();
-
-
 }
 
 // Gọi API Thanh toán
 async function apiCheckout(orderData) {
-    const response = await fetch('http://localhost:3000/api/checkout', {
+    const response = await fetch('https://ma-demo-store.loca.lt/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderData)
@@ -64,12 +62,21 @@ async function apiCheckout(orderData) {
 
 // Gọi API Lấy danh sách Users (Admin)
 async function apiGetUsers() {
-    const response = await fetch('http://localhost:3000/api/admin/users');
+    const response = await fetch('https://ma-demo-store.loca.lt/api/admin/users');
     return await response.json();
 }
 
 // Gọi API Lấy danh sách Đơn hàng (Admin)
 async function apiGetOrders() {
-    const response = await fetch('http://localhost:3000/api/admin/orders');
+    const response = await fetch('https://ma-demo-store.loca.lt/api/admin/orders');
     return await response.json();
 }
+
+// Gọi API Xóa User
+async function apiDeleteUser(userId) {
+    const response = await fetch(`https://ma-demo-store.loca.lt/api/admin/users/${userId}`, {
+        method: 'DELETE'
+    });
+    return await response.json();
+}
+

@@ -1,82 +1,102 @@
-// Hàm gọi API lấy danh sách sản phẩm từ Backend
-async function fetchProductsFromAPI() {
-    try {
-        // Gọi đến địa chỉ máy chủ Node.js của chúng ta
-        const response = await fetch('https://ma-demo-store.loca.lt/api/products');
+// Đọc URL từ bộ nhớ trình duyệt, nếu chưa có thì dùng tạm một link mặc định
+let API_URL = localStorage.getItem('SAVED_API_URL') || 'https://chuadatchuan.trycloudflare.com/api';
+
+// Hàm cấu hình API động (dành cho Admin/Developer lúc demo)
+function configAPI() {
+    let currentLink = API_URL.replace('/api', '');
+    let newUrl = prompt("Nhập đường dẫn Cloudflare mới vào đây:", currentLink);
+    
+    if (newUrl) {
+        // Xử lý chuỗi để đảm bảo định dạng luôn đúng dù bro copy dư dấu /
+        if(newUrl.endsWith('/')) newUrl = newUrl.slice(0, -1);
+        if(!newUrl.endsWith('/api')) newUrl += '/api';
         
-        if (!response.ok) {
-            throw new Error('Lỗi mạng hoặc server không phản hồi');
-        }
-        
-        // Chuyển đổi dữ liệu nhận được thành mảng JavaScript
-        const data = await response.json();
-        return data;
-        
-    } catch (error) {
-        console.error('Lỗi khi lấy dữ liệu từ Database:', error);
-        return []; // Trả về mảng rỗng nếu có lỗi để web không bị sập
+        API_URL = newUrl;
+        localStorage.setItem('SAVED_API_URL', API_URL); // Lưu vào bộ nhớ
+        alert("Đã cập nhật API mới! Trang web sẽ tự tải lại.");
+        location.reload(); // Tự động F5 lại trang
     }
 }
 
-// Gọi API Đăng ký
+// Hàm gọi API dùng chung (Tự động đính kèm chìa khóa vượt rào)
+async function fetchAPI(endpoint, options = {}) {
+    const defaultHeaders = {
+        'Content-Type': 'application/json',
+        // ĐÂY LÀ CHÌA KHÓA ĐỂ VƯỢT QUA TRANG CẢNH BÁO CỦA LOCALTUNNEL
+        'Bypass-Tunnel-Reminder': 'true' 
+    };
+
+    const response = await fetch(API_URL + endpoint, {
+        ...options,
+        headers: {
+            ...defaultHeaders,
+            ...(options.headers || {})
+        }
+    });
+    
+    // Nếu có lỗi, trình duyệt sẽ báo đỏ trong Console thay vì sập im lặng
+    if (!response.ok) {
+        console.error("Lỗi gọi API:", response.status, await response.text());
+        return { error: "Không thể kết nối đến máy chủ API" };
+    }
+    
+    return await response.json();
+}
+
+// ==========================================
+// CÁC HÀM GIAO TIẾP VỚI BACKEND
+// ==========================================
+
+// Lấy danh sách sản phẩm
+async function fetchProductsFromAPI() {
+    return await fetchAPI('/products');
+}
+
+// Đăng ký
 async function apiRegister(email, password) {
-    const response = await fetch('https://ma-demo-store.loca.lt/api/register', {
+    return await fetchAPI('/register', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
     });
-    return await response.json();
 }
 
-// Gọi API Đăng nhập
+// Đăng nhập
 async function apiLogin(email, password) {
-    const response = await fetch('https://ma-demo-store.loca.lt/api/login', {
+    return await fetchAPI('/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
     });
-    return await response.json();
 }
 
-// Gọi API Cập nhật thông tin (Nơi chứa lỗ hổng Mass Assignment)
+// Cập nhật thông tin (Chứa lỗ hổng Mass Assignment)
 async function apiUpdateProfile(userId, updateData) {
-    const response = await fetch(`https://ma-demo-store.loca.lt/api/users/${userId}/update-profile`, {
+    return await fetchAPI(`/users/${userId}/update-profile`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        // Chú ý: Toàn bộ đối tượng updateData được chuyển thành chuỗi và gửi đi. 
-        // Kẻ tấn công có thể chèn thêm {"role": "admin"} vào đây trước khi gửi.
-        body: JSON.stringify(updateData) 
+        body: JSON.stringify(updateData)
     });
-    return await response.json();
 }
 
-// Gọi API Thanh toán
+// Thanh toán
 async function apiCheckout(orderData) {
-    const response = await fetch('https://ma-demo-store.loca.lt/api/checkout', {
+    return await fetchAPI('/checkout', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderData)
     });
-    return await response.json();
 }
 
-// Gọi API Lấy danh sách Users (Admin)
+// Admin lấy danh sách User
 async function apiGetUsers() {
-    const response = await fetch('https://ma-demo-store.loca.lt/api/admin/users');
-    return await response.json();
+    return await fetchAPI('/admin/users');
 }
 
-// Gọi API Lấy danh sách Đơn hàng (Admin)
+// Admin lấy lịch sử đơn hàng
 async function apiGetOrders() {
-    const response = await fetch('https://ma-demo-store.loca.lt/api/admin/orders');
-    return await response.json();
+    return await fetchAPI('/admin/orders');
 }
 
-// Gọi API Xóa User
+// Admin xóa tài khoản
 async function apiDeleteUser(userId) {
-    const response = await fetch(`https://ma-demo-store.loca.lt/api/admin/users/${userId}`, {
+    return await fetchAPI(`/admin/users/${userId}`, {
         method: 'DELETE'
     });
-    return await response.json();
 }
-

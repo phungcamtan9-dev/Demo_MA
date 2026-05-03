@@ -6,8 +6,33 @@ const mysql = require('mysql2');
 const app = express();
 const PORT = 3000;
 
-app.use(cors());
+app.use(cors({
+    origin: '*', 
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Bypass-Tunnel-Reminder']
+}));
 app.use(express.json());
+// // ==========================================
+// // WAF BẢO VỆ TẦNG HTTP (KIỂM DUYỆT GÓI TIN)
+// // ==========================================
+// app.use((req, res, next) => {
+//     // Chỉ kiểm tra các gói tin có mang theo dữ liệu (POST, PUT, PATCH)
+//     if (['POST', 'PUT', 'PATCH'].includes(req.method)) {
+        
+//         // Rà quét xem trong gói hàng (req.body) có chứa thuộc tính 'role' không
+//         if (req.body && req.body.role !== undefined) {
+//             console.log(`[CẢNH BÁO BẢO MẬT] Phát hiện nỗ lực tấn công Mass Assignment từ IP: ${req.ip}`);
+            
+//             // Chặn đứng kết nối ở ngay vòng ngoài, trả về mã 403 (Cấm truy cập)
+//             return res.status(403).json({ 
+//                 error: "Access Denied: Phát hiện dữ liệu không hợp lệ trong gói tin mạng!" 
+//             });
+//         }
+//     }
+//     // Nếu gói tin an toàn, cho phép đi tiếp vào Backend
+//     next(); 
+// });
+
 
 // Kết nối Database
 const db = mysql.createConnection({

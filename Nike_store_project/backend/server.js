@@ -54,25 +54,6 @@ db.connect((err) => {
 
 // Hàm tạo bảng và dữ liệu mẫu
 function initDatabase() {
-    // 1. Bảng Products
-    db.query(`CREATE TABLE IF NOT EXISTS products (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), price VARCHAR(50), category VARCHAR(100), gender VARCHAR(50), image VARCHAR(500))`, (err) => {
-        if (!err) {
-            db.query(`SELECT COUNT(*) AS count FROM products`, (err, results) => {
-                if (results[0].count === 0) {
-                    const insertQuery = `INSERT INTO products (name, price, category, gender, image) VALUES ?`;
-                    const values = [
-                        ["Air Jordan 1", "12,500,000đ", "Giày Nam", "nam", "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=500&q=80"],
-                        ["Nike Air Force 1", "2,000,000đ", "Giày Nam", "nam", "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&q=80"],
-                        ["Nike Ava X", "2,500,000đ", "Giày Nam", "nam", "https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=500&q=80"],
-                        ["Nike Downshifter 14", "1,700,000đ", "Giày Nam", "nam", "https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=500&q=80"],
-                        ["Air Force 1 '07 LV8 'Denim'", "3,000,000đ", "Giày Nữ", "nu", "https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=500&q=80"],
-                        ["Ja 3 'Jelly Bean'", "2,700,000đ", "Giày Nữ", "nu", "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=500&q=80"]
-                    ];
-                    db.query(insertQuery, [values], () => console.log("Đã tự động thêm giày mẫu!"));
-                }
-            });
-        }
-    });
 
     // 2. Bảng Users
     db.query(`CREATE TABLE IF NOT EXISTS users (id INT AUTO_INCREMENT PRIMARY KEY, email VARCHAR(255) UNIQUE, password VARCHAR(255), role VARCHAR(50) DEFAULT 'user', fullname VARCHAR(255), phone VARCHAR(20), address VARCHAR(500), gender VARCHAR(10))`, (err) => {
